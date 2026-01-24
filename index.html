@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSW 114</title>
+    <title>UFC 324 - Twitch Predictions</title>
     <link rel="icon" type="image/png" href="flavicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,33 +11,23 @@
     <style>
         body {
             font-family: 'Roboto Condensed', sans-serif;
-            background-color: #0f172a; /* Couleur de secours */
+            background-color: #0f172a;
             color: #e2e8f0;
-
-            /* --- IMAGE DE FOND --- */
-            /* Nouvelle image : Arène éclairée (plus fiable) */
+            /* IMAGE DE FOND */
             background-image: url('https://images.unsplash.com/photo-1552072092-7f9b8d63efcb?q=80&w=2070&auto=format&fit=crop');
-            
-            /* Paramètres d'affichage */
             background-size: cover;       
             background-position: center;  
             background-attachment: fixed; 
             background-repeat: no-repeat; 
-            
-            /* Juste un léger voile noir pour que le texte reste lisible, sans cacher l'image */
             box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.4);
         }
 
         .fight-row { transition: all 0.3s ease; }
-        /* Fond des lignes de combat */
         .fight-row:hover { background-color: rgba(30, 41, 59, 0.6); } 
         .fighter-head { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid #ef4444; }
         .vs-badge { font-style: italic; font-weight: 900; color: #ef4444; font-size: 1.2rem; }
-        
-        /* Style quand c'est terminé */
         .fight-row.completed { background-color: rgba(2, 6, 23, 0.7); border-color: rgba(30, 41, 59, 0.5); }
         .fight-row.completed .fight-content { opacity: 0.3; filter: grayscale(100%); pointer-events: none; }
-        
         #toast { visibility: hidden; min-width: 250px; background-color: #22c55e; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 50; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 16px; opacity: 0; transition: opacity 0.3s, bottom 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
         #finish-overlay { transition: opacity 0.3s ease-out; }
@@ -45,10 +35,9 @@
 </head>
 <body class="min-h-screen py-8 px-2 md:px-6 flex flex-col items-center">
     
-    <!-- Header transparent -->
     <header class="mb-8 text-center w-full max-w-4xl bg-slate-900/60 p-6 rounded-xl border border-slate-700/40 shadow-lg backdrop-blur-sm">
         <h1 class="text-4xl font-bold text-white uppercase tracking-wider mb-2">
-            KSW 114: Parnasse vs. Held
+            UFC <span class="text-red-600">324</span>
         </h1>
         <p class="text-slate-400 text-sm">
             Pour les prédictions MVOUALAAA <br>
@@ -57,177 +46,159 @@
     </header>
 
     <div class="w-full max-w-4xl space-y-8">
-        <!-- Main Card Transparent -->
+        <!-- Main Card -->
         <div class="bg-slate-900/40 backdrop-blur-md rounded-xl overflow-hidden shadow-xl border border-slate-700/40">
             <div class="bg-red-700/80 text-white py-2 px-4 font-bold uppercase tracking-widest text-sm flex items-center justify-between">
-                <span><i class="fas fa-star mr-2"></i> Main Card (6 Combats)</span>
+                <span><i class="fas fa-star mr-2"></i> Main Card (5 Combats)</span>
             </div>
             <div id="main-card-container" class="divide-y divide-slate-700/40"></div>
         </div>
 
-        <!-- Prelims Transparent -->
+        <!-- Prelims -->
         <div class="bg-slate-900/40 backdrop-blur-md rounded-xl overflow-hidden shadow-xl border border-slate-700/40">
             <div class="bg-slate-700/80 text-slate-200 py-2 px-4 font-bold uppercase tracking-widest text-sm flex items-center justify-between">
-                <span><i class="fas fa-fist-raised mr-2"></i> Prelims finito</span>
+                <span><i class="fas fa-fist-raised mr-2"></i> Prelims (4 Combats)</span>
             </div>
             <div id="prelims-container" class="divide-y divide-slate-800/40"></div>
         </div>
+
+        <!-- Early Prelims -->
+        <div class="bg-slate-900/40 backdrop-blur-md rounded-xl overflow-hidden shadow-xl border border-slate-700/40">
+            <div class="bg-slate-600/80 text-slate-200 py-2 px-4 font-bold uppercase tracking-widest text-sm flex items-center justify-between">
+                <span><i class="fas fa-running mr-2"></i> Early Prelims (4 Combats)</span>
+            </div>
+            <div id="early-prelims-container" class="divide-y divide-slate-800/40"></div>
+        </div>
     </div>
 
-    <!-- Toast -->
     <div id="toast"><i class="fas fa-check-circle mr-2"></i> Copié !</div>
     
-    <!-- Image Flash (Celle que tu avais mise) -->
     <div id="finish-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 pointer-events-none opacity-0">
+        <!-- Image Flash -->
         <img src="https://i.imgur.com/KClOJlh.png" class="max-w-[90%] max-h-[90%] object-contain drop-shadow-2xl transition-transform duration-500 scale-50" id="finish-img-el">
     </div>
 
     <script>
+        // J'ai séparé les noms en firstName et lastName
         const ufcCard = {
-    "mainCard": [
-        {
-            "f1": {
-                "name": "Salahdine Parnasse",
-                "record": "21-2",
-                "img": "https://www.kswmma.com/storage/2024-12/1734359712-parnasse.png.450.webp"
-            },
-            "f2": {
-                "name": "Marcin Held",
-                "record": "31-10",
-                "img": "https://www.kswmma.com/storage/2025-09/1758388768-held.png.450.webp"
-            }
-        },
-        {
-            "f1": {
-                "name": "Arkadiusz Wrzosek",
-                "record": "6-1",
-                "img": "https://www.kswmma.com/storage/2025-11/1763227132-wrzosek.png.450.webp"
-            },
-            "f2": {
-                "name": "Szymon Bajor",
-                "record": "26-12",
-                "img": "https://www.kswmma.com/storage/2025-07/1752943923-bajor.png.450.webp"
-            }
-        },
-        {
-            "f1": {
-                "name": "Wiktoria Czyżewska",
-                "record": "6-1",
-                "img": "https://www.kswmma.com/storage/2025-11/1763227251-czyzewska.png.450.webp"
-            },
-            "f2": {
-                "name": "Tamires Vidal",
-                "record": "7-4",
-                "img": "https://www.kswmma.com/storage/2025-12/1765465495-vidal.png.450.webp"
-            }
-        },
-        {
-            "f1": {
-                "name": "Ibragim Chuzhigaev",
-                "record": "19-6",
-                "img": "https://www.kswmma.com/storage/2025-12/1765391774-chuzhigaev.png.450.webp"
-            },
-            "f2": {
-                "name": "Maciej Różański",
-                "record": "15-6",
-                "img": "https://www.kswmma.com/storage/2025-01/1737324446-rozanski.png.450.webp"
-            }
-        },
-        {
-            "f1": {
-                "name": "Piotr Kacprzak",
-                "record": "12-6",
-                "img": "https://www.kswmma.com/storage/2024-12/1734970612-kacprzak.png"
-            },
-            "f2": {
-                "name": "Wojciech Kazieczko",
-                "record": "6-2",
-                "img": "https://www.kswmma.com/storage/2025-06/1749649826-kazieczko.png"
-            }
-        },
-        {
-            "f1": {
-                "name": "Andi Vrtačić",
-                "record": "7-3",
-                "img": "https://www.kswmma.com/storage/2025-06/1750605022-vrtacic.png"
-            },
-            "f2": {
-                "name": "Mateusz Gola",
-                "record": "6-6",
-                "img": "https://www.kswmma.com/storage/2025-12/1766167781-gola.png"
-            }
-        },
-    ],
-    "prelims": [
-        {
-            "f1": {
-                "name": "Viktor Červinský",
-                "record": "5-2",
-                "img": "https://www.kswmma.com/storage/2025-12/1764605665-cervinsky.png"
-            },
-            "f2": {
-                "name": "Amaury Wako",
-                "record": "4-0",
-                "img": "https://www.kswmma.com/storage/2025-12/1764605698-wako.png"
-            }
-        },
-        {
-            "f1": {
-                "name": "Henry Fadipe",
-                "record": "15-12-1",
-                "img": "https://www.kswmma.com/storage/2023-09/1694889582-fadipe86.png.450.webp"
-            },
-            "f2": {
-                "name": "Konrad Rusiński",
-                "record": "6-3",
-                "img": "https://www.kswmma.com/storage/2025-12/1767106416-rusinski.png.450.webp"
-            }
-        },
-        {
-            "f1": {
-                "name": "Oleksandr Moisa",
-                "record": "4-1",
-                "img": "https://www.kswmma.com/storage/2025-08/1754690949-moisa.png.450.webp"
-            },
-            "f2": {
-                "name": "Iras Khizriev",
-                "record": "4-0",
-                "img": "https://www.kswmma.com/storage/2025-07/1752683836-khizriev.png"
-            }
-        },
-    ]
-};
+            "mainCard": [
+  {
+    "f1": { "firstName": "Justin", "lastName": "Gaethje", "record": "26-5-0", "img": "" },
+    "f2": { "firstName": "Paddy", "lastName": "Pimblett", "record": "23-3-0", "img": "" }
+  },
+  {
+    "f1": { "firstName": "Sean", "lastName": "O'Malley", "record": "18-3-0", "img": "" },
+    "f2": { "firstName": "Song", "lastName": "Yadong", "record": "22-8-1", "img": "" }
+  },
+  {
+    "f1": { "firstName": "Alexandre", "lastName": "Cortes Acosta", "record": "16-2-0", "img": "" },
+    "f2": { "firstName": "Derrick", "lastName": "Lewis", "record": "29-12-0", "img": "" }
+  },
+  {
+    "f1": { "firstName": "Rose", "lastName": "Namajunas", "record": "15-7-0", "img": "" },
+    "f2": { "firstName": "Natalia", "lastName": "Silva", "record": "19-5-1", "img": "" }
+  },
+  {
+    "f1": { "firstName": "Arnold", "lastName": "Allen", "record": "20-3-0", "img": "" },
+    "f2": { "firstName": "Jean", "lastName": "Silva", "record": "16-3-0", "img": "" }
+  }
+]
+
+            "prelims": [
+                {
+                    "f1": { "firstName": "Geoff", "lastName": "Neal", "record": "15-6", "img": "https://ui-avatars.com/api/?name=Geoff+Neal&background=333&color=fff" },
+                    "f2": { "firstName": "Rafael", "lastName": "dos Anjos", "record": "32-16", "img": "https://ui-avatars.com/api/?name=Rafael+dos+Anjos&background=333&color=fff" }
+                },
+                {
+                    "f1": { "firstName": "Mateusz", "lastName": "Rebecki", "record": "19-2", "img": "https://ui-avatars.com/api/?name=Mateusz+Rebecki&background=333&color=fff" },
+                    "f2": { "firstName": "Myktybek", "lastName": "Orolbai", "record": "13-1-1", "img": "https://ui-avatars.com/api/?name=Myktybek+Orolbai&background=333&color=fff" }
+                },
+                {
+                    "f1": { "firstName": "Said", "lastName": "Nurmagomedov", "record": "18-3", "img": "https://ui-avatars.com/api/?name=Said+Nurmagomedov&background=333&color=fff" },
+                    "f2": { "firstName": "Daniel", "lastName": "Santos", "record": "12-2", "img": "https://ui-avatars.com/api/?name=Daniel+Santos&background=333&color=fff" }
+                },
+                {
+                    "f1": { "firstName": "Abus", "lastName": "Magomedov", "record": "26-6-1", "img": "https://ui-avatars.com/api/?name=Abus+Magomedov&background=333&color=fff" },
+                    "f2": { "firstName": "Brunno", "lastName": "Ferreira", "record": "12-1", "img": "https://ui-avatars.com/api/?name=Brunno+Ferreira&background=333&color=fff" }
+                },
+                {
+                    "f1": { "firstName": "Kennedy", "lastName": "Nzechukwu", "record": "12-5", "img": "https://ui-avatars.com/api/?name=Kennedy+Nzechukwu&background=333&color=fff" },
+                    "f2": { "firstName": "Chris", "lastName": "Barnett", "record": "23-8", "img": "https://ui-avatars.com/api/?name=Chris+Barnett&background=333&color=fff" }
+                }
+            ],
+            "earlyPrelims": [
+                {
+                    "f1": { "firstName": "Farid", "lastName": "Basharat", "record": "12-0", "img": "https://ui-avatars.com/api/?name=Farid+Basharat&background=333&color=fff" },
+                    "f2": { "firstName": "Victor", "lastName": "Hugo", "record": "25-4", "img": "https://ui-avatars.com/api/?name=Victor+Hugo&background=333&color=fff" }
+                },
+                {
+                    "f1": { "firstName": "Ismail", "lastName": "Naurdiev", "record": "23-7", "img": "https://ui-avatars.com/api/?name=Ismail+Naurdiev&background=333&color=fff" },
+                    "f2": { "firstName": "Bruno", "lastName": "Silva", "record": "23-11", "img": "https://ui-avatars.com/api/?name=Bruno+Silva&background=333&color=fff" }
+                },
+                {
+                    "f1": { "firstName": "Rinat", "lastName": "Fakhretdinov", "record": "22-1-1", "img": "https://ui-avatars.com/api/?name=Rinat+Fakhretdinov&background=333&color=fff" },
+                    "f2": { "firstName": "Carlos", "lastName": "Leal", "record": "21-5", "img": "https://ui-avatars.com/api/?name=Carlos+Leal&background=333&color=fff" }
+                },
+                {
+                    "f1": { "firstName": "Ibo", "lastName": "Aslan", "record": "13-1", "img": "https://ui-avatars.com/api/?name=Ibo+Aslan&background=333&color=fff" },
+                    "f2": { "firstName": "Raffael", "lastName": "Cerqueira", "record": "11-0", "img": "https://ui-avatars.com/api/?name=Raffael+Cerqueira&background=333&color=fff" }
+                }
+            ]
+        };
+
         const mainContainer = document.getElementById('main-card-container');
         const prelimsContainer = document.getElementById('prelims-container');
+        const earlyPrelimsContainer = document.getElementById('early-prelims-container');
+
         function createFighterHTML(fighter, alignment) {
             const isLeft = alignment === 'left';
             const flexDir = isLeft ? 'flex-row' : 'flex-row-reverse text-right';
             const margin = isLeft ? 'mr-3' : 'ml-3';
+            
+            // On reconstruit le nom complet pour l'affichage
+            const fullName = `${fighter.firstName} ${fighter.lastName}`;
+
             return `
                 <div class="flex items-center ${flexDir} flex-1 min-w-0">
-                    <img src="${fighter.img}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(fighter.name)}&background=333&color=fff'" class="fighter-head flex-shrink-0 ${margin} bg-slate-700">
+                    <img src="${fighter.img}" 
+                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=333&color=fff'" 
+                         class="fighter-head flex-shrink-0 ${margin} bg-slate-700">
+                    
                     <div class="flex flex-col overflow-hidden">
-                        <span class="font-bold text-slate-100 truncate text-sm md:text-base">${fighter.name}</span>
+                        <span class="font-bold text-slate-100 truncate text-sm md:text-base">${fullName}</span>
                         <span class="text-xs text-slate-500 font-mono">${fighter.record}</span>
                     </div>
-                    <button onclick="handleCopy('${fighter.name}', '${fighter.record}')" class="copy-btn bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 rounded p-2 mx-2 transition-colors active:scale-95 z-20" title="Copier ${fighter.name}">
+
+                    <!-- ICI : on passe uniquement fighter.lastName à la fonction de copie -->
+                    <button onclick="handleCopy('${fighter.lastName}', '${fighter.record}')" 
+                            class="copy-btn bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 rounded p-2 mx-2 transition-colors active:scale-95 z-20"
+                            title="Copier ${fighter.lastName}">
                         <i class="far fa-copy"></i>
                     </button>
                 </div>
             `;
         }
+
         function createFightRow(fightData) {
             const row = document.createElement('div');
             row.className = 'fight-row p-3 flex items-center gap-2 relative group';
+
             const f1HTML = createFighterHTML(fightData.f1, 'left');
             const f2HTML = createFighterHTML(fightData.f2, 'right');
+
             const contentDiv = document.createElement('div');
             contentDiv.className = 'fight-content flex-1 flex items-center justify-between gap-2 transition-all duration-300';
-            contentDiv.innerHTML = `${f1HTML}<div class="vs-badge flex-shrink-0 px-2">VS</div>${f2HTML}`;
+            contentDiv.innerHTML = `
+                ${f1HTML}
+                <div class="vs-badge flex-shrink-0 px-2">VS</div>
+                ${f2HTML}
+            `;
+
             const statusBtn = document.createElement('button');
             statusBtn.className = 'status-btn ml-2 w-10 h-10 flex items-center justify-center rounded-full text-slate-600 hover:text-slate-300 hover:bg-slate-800 transition-all z-10 flex-shrink-0';
             statusBtn.innerHTML = '<i class="far fa-circle text-xl"></i>';
             statusBtn.title = "Marquer comme terminé";
+
             statusBtn.onclick = function() {
                 const isCompleted = row.classList.toggle('completed');
                 if (isCompleted) {
@@ -241,31 +212,50 @@
                     this.title = "Marquer comme terminé";
                 }
             };
+
             row.appendChild(contentDiv);
             row.appendChild(statusBtn);
+
             return row;
         }
+
         function renderCard() {
             mainContainer.innerHTML = '';
-            ufcCard.mainCard.forEach(fight => { mainContainer.appendChild(createFightRow(fight)); });
+            ufcCard.mainCard.forEach(fight => {
+                mainContainer.appendChild(createFightRow(fight));
+            });
+
             prelimsContainer.innerHTML = '';
-            ufcCard.prelims.forEach(fight => { prelimsContainer.appendChild(createFightRow(fight)); });
+            ufcCard.prelims.forEach(fight => {
+                prelimsContainer.appendChild(createFightRow(fight));
+            });
+
+            earlyPrelimsContainer.innerHTML = '';
+            ufcCard.earlyPrelims.forEach(fight => {
+                earlyPrelimsContainer.appendChild(createFightRow(fight));
+            });
         }
+
         function triggerFinishEffect() {
             const overlay = document.getElementById('finish-overlay');
             const img = document.getElementById('finish-img-el');
-            if(!img.src || img.src === window.location.href) return; 
+            
+            if(!img.src) return; 
+            
             overlay.classList.remove('opacity-0');
             img.classList.remove('scale-50');
             img.classList.add('scale-100');
+            
             setTimeout(() => {
                 overlay.classList.add('opacity-0');
                 img.classList.remove('scale-100');
                 img.classList.add('scale-50');
             }, 500);
         }
+
         function handleCopy(name, score) {
             event.stopPropagation();
+            // Ici 'name' correspond maintenant au nom de famille uniquement
             const textToCopy = `${name} (${score})`;
             const textArea = document.createElement("textarea");
             textArea.value = textToCopy;
@@ -274,6 +264,7 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
+
             try {
                 document.execCommand('copy');
                 showToast(`Copié : ${name}`);
@@ -282,6 +273,7 @@
             }
             document.body.removeChild(textArea);
         }
+
         function showToast(message, isError = false) {
             const toast = document.getElementById("toast");
             toast.innerText = message;
@@ -289,10 +281,9 @@
             toast.className = "show";
             setTimeout(() => toast.className = toast.className.replace("show", ""), 2000);
         }
+
         renderCard();
+
     </script>
 </body>
 </html>
-
-
-
